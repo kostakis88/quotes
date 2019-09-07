@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import queryString from 'query-string';
 import axios from 'axios';
+import QuoteText from './QuoteText';
+import QuoteNavigation from './QuoteNavigation';
+import QuoteFooter from './QuoteFooter';
 
 class QuotesDisplay extends Component {
   state = {
-    quote: {}
+    quote: {},
+    fireRedirect: false
   }
 
   fetchQuote(id) {
@@ -15,6 +19,7 @@ class QuotesDisplay extends Component {
     })
     .catch(error => { 
       console.error(error);
+      this.setState({ fireRedirect: true });
     })
   }
 
@@ -45,10 +50,13 @@ class QuotesDisplay extends Component {
 
     return(
       <div>
-        { previousQuoteId && <Link to={`/?quote=${previousQuoteId}`}>Previous</Link>}
-        { nextQuoteId && <Link to={`/?quote=${nextQuoteId}`}>Next</Link> }
-        <p>{quote.text}</p>
-        <p>{quote.author}</p>
+        <div className="quote-container">
+          { this.state.fireRedirect && <Redirect to={'/'} /> }
+          { previousQuoteId && <QuoteNavigation direction="previous" otherQuoteId={previousQuoteId} /> }
+          <QuoteText quote={this.state.quote}/>
+          { nextQuoteId && <QuoteNavigation direction="next" otherQuoteId={nextQuoteId} /> }
+          { this.state.quote.id !== parseInt(this.props.startingQuoteId, 10) && <QuoteFooter startingQuoteId={this.props.startingQuoteId} />}  
+        </div>
       </div>
     );
   }
